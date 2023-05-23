@@ -1,0 +1,212 @@
+body {
+  font-family: "Lato", "Noto Sans TC", sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #333333;
+ 
+  /* background: url(/jpg/final.png) center center no-repeat; */
+  /* background-size: contain; */
+}
+
+body::before {
+  content: "";
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* background-image: linear-gradient(to bottom, rgba(252, 252, 252, 0) 50%, rgb(135, 135, 135) 100%), url(/jpg/final.png); */
+  background: url(/img/final.png) center center no-repeat;
+  background-color: #f8f8f8;
+  background-size: cover;
+  filter: blur(40px);
+  filter: opacity(.3);
+  z-index: -1;
+}
+
+.iconx {
+  font-size: 30px;
+}
+
+header {
+  /* outline: 3px solid chocolate; */
+  height: 150px;
+  background-color:rgba(226, 226, 226, 0.14) ;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.08);
+}
+
+nav {
+
+  max-width: 1000px;
+  margin: 0 auto;
+  height: 100%;
+  padding: 0 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-title {
+  font-weight: bolder;
+  font-size: 32px;
+  letter-spacing: 1px;
+}
+
+.nav-link {
+  color: #666666;
+}
+
+main {
+
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.skill-title {
+  text-align: center;
+  margin: 20px auto;
+}
+
+h2 {
+  font-size: 32px;
+  margin: 24px 0 8px;
+}
+
+h3 {
+  font-size: 21px;
+  margin: 0 0 8px;
+  font-weight: 500px;
+}
+
+.skill:hover {
+  color: cornflowerblue;
+  transform: scale(1.1);
+
+}
+
+section {
+
+  margin-bottom: 48px;
+}
+
+.avatar {
+  text-align: center;
+}
+
+.avatar-img {
+  width: 128px;
+  border-radius: 50%;
+}
+
+.name {
+  text-align: center;
+  font-size: 32px;
+  margin: 20px 0;
+}
+
+.social-media {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.social-media-link {
+  color: #999999;
+  text-decoration: none;
+  margin: 0 5px;
+}
+
+.social-media-link:hover i {
+  color: #ff6600;
+  transform: scale(1.4);
+}
+
+.title {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #035bf3ee;
+  font-size: 16px;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+/* skill section */
+
+.skills {
+
+  /* outline: 3px solid tomato; */
+  display: flex;
+  flex-direction: column;
+  /* height: 100vh; */
+  
+
+}
+
+.top-row {
+  /* outline: 3px solid blue; */
+  display: flex;
+  justify-content: space-around;
+  /* 让子元素均匀分布 */
+  align-items: normal;
+  /* 让子元素在交叉轴上居中对齐 */
+
+}
+
+.bottom-row {
+  display: flex;
+  justify-content: flex-start;
+  /* 让子元素居中对齐 */
+  align-items: normal;
+  /* 让子元素在交叉轴上居中对齐 */
+
+}
+
+.skill {
+  /* outline: 3px solid blue; */
+  margin-right: 20px;
+  width: 30%;
+  min-height: 200px;
+  background-color: rgb(255, 255, 255);
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 0px 6px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  padding: 10px 30px 30px;
+  position: relative;
+  border-bottom: 2px solid #999999;
+  transition: transform 0.3s ease-in-out;
+}
+
+.skill-name {
+  /* border-top: 2px solid #999999; */
+  padding-top: 10px;
+}
+
+/* experience-section */
+.experience-section {}
+
+.experience-item {
+
+  /* border-top: 2px solid #999999; */
+}
+
+hr {
+  border: 0px;
+  height: 2px;
+  background-color: #999999;
+  margin: 20px 0;
+}
+
+.company,
+.duration {
+  color: #666666;
+  margin-right: 20px;
+  font-size: 14px;
+}
+
+.fa-building,
+.fa-calendar-days {
+
+  margin-right: 5px;
+}
