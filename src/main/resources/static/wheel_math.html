@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>互動式幸運轉盤 (完美精準對位版)</title>
+    <title>互動式幸運轉盤 (全螢幕響應式 RWD 版)</title>
     <style>
+        :root {
+            /* 🌟 核心控制：轉盤最大 500px，但在小螢幕會自動縮放適應寬度 */
+            --wheel-size: min(90vw, 500px); 
+        }
+
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            /* 避免有些手機瀏覽器底下有導覽列遮擋，使用 dvh 如果支援的話更好，這裡用 vh 搭配 min-height */
+            min-height: 100vh;
             background-color: #7b7b7b;
             margin: 0;
             font-family: sans-serif;
@@ -20,19 +26,27 @@
 
         .wheel-container {
             position: relative;
-            transform: perspective(800px) rotateX(45deg); 
+            /* 讓透視感也跟著螢幕大小變化 */
+            transform: perspective(150vw) rotateX(45deg); 
             transform-style: preserve-3d; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            /* 陰影也改用比例計算，維持立體厚度 */
+            box-shadow: 0 calc(var(--wheel-size) * 0.04) calc(var(--wheel-size) * 0.1) rgba(0,0,0,0.5);
             border-radius: 50%;
             background-color: #dcb38a;
-            padding: 10px;
-            width: 500px;
-            height: 500px;
+            /* 將寬高綁定我們設定的變數 */
+            width: var(--wheel-size);
+            height: var(--wheel-size);
+            /* padding 也改成比例 */
+            padding: 2%; 
+            box-sizing: border-box;
         }
 
+        /* Canvas 本身的內部解析度依然是 500x500，但外觀會被這裡的 100% 壓縮，這會讓畫質非常精細 (類似 Retina 螢幕效果) */
         canvas {
             display: block;
             border-radius: 50%;
+            width: 100%;
+            height: 100%;
         }
 
         .pointer-wrapper {
@@ -43,30 +57,33 @@
             height: 100%;
             border-radius: 50%;
             z-index: 20;
+            /* 使用 var(--angle) 接收來自 JS 的旋轉角度，並保持等比例的 3D 懸浮高度 */
+            transform: translateZ(calc(var(--wheel-size) * 0.06)) rotateZ(var(--angle, 0rad));
         }
 
         .pointer-img {
             position: absolute;
             left: 50%;
-            top: -10px; 
-            /* 🌟 修正重點：加上了 translateY(-35px) 
-               這個動作能將偏下方的指尖，推回到完美的正中央旋轉線上。
-               如果您換了其他圖片覺得還是差一點點，可以調整這個數值 (例如改為 -30px 或 -40px) */
-            transform: translateX(-50%) rotate(-90deg) translateY(-35px); 
-            width: 160px; 
-            height: 100px; 
+            /* 將 px 全部換成 % 比例，確保縮放時完美對位 */
+            top: -2%; 
+            width: 32%; /* 160px 約為 500px 的 32% */
+            height: auto; 
+            /* translateY(-35%) 裡的百分比是相對於圖片自身高度，所以縮放也不會歪 */
+            transform: translateX(-50%) rotate(-90deg) translateY(-35%); 
             filter: drop-shadow(8px -8px 5px rgba(0,0,0,0.4));
         }
 
         .controls {
-            margin-top: 50px;
+            /* 距離也改成動態的 */
+            margin-top: calc(var(--wheel-size) * 0.1);
             text-align: center;
             z-index: 30;
         }
 
         button {
-            padding: 15px 40px;
-            font-size: 24px;
+            /* clamp(最小值, 推薦值, 最大值)：讓按鈕跟著螢幕平滑縮放 */
+            padding: clamp(10px, 3vw, 15px) clamp(20px, 6vw, 40px);
+            font-size: clamp(18px, 5vw, 24px);
             font-weight: bold;
             color: white;
             background-color: #4CAF50;
@@ -84,7 +101,7 @@
 
         #result {
             margin-top: 20px;
-            font-size: 28px;
+            font-size: clamp(20px, 6vw, 28px);
             font-weight: bold;
             color: white;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
@@ -193,7 +210,8 @@
                     currentAngle -= Math.PI * 2;
                 }
 
-                pointerWrapper.style.transform = `translateZ(30px) rotateZ(${currentAngle}rad)`;
+                // 🌟 優化：JS 現在只負責傳遞角度給 CSS 變數，不需要去管 translateZ 的高度
+                pointerWrapper.style.setProperty('--angle', `${currentAngle}rad`);
                 
                 animationFrameId = requestAnimationFrame(animate);
             }
