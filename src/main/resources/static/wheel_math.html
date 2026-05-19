@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>互動式幸運轉盤 (上方手指往下指)</title>
+    <title>互動式幸運轉盤 (完美對位版)</title>
     <style>
         body {
             display: flex;
@@ -20,7 +20,9 @@
 
         .wheel-container {
             position: relative;
+            /* 父層建立 3D 空間與傾斜 */
             transform: perspective(800px) rotateX(45deg); 
+            transform-style: preserve-3d; /* 確保裡面的手指能繼承 3D 空間 */
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             border-radius: 50%;
             background-color: #dcb38a;
@@ -36,30 +38,26 @@
 
         .pointer-wrapper {
             position: absolute;
-            /* 將指針容器移動到上方 */
-            top: -150px; 
+            /* 🌟 修正重點：歸零。讓旋轉容器與轉盤完全同心，解決偏移問題 */
+            top: 0; 
             left: 0;
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            /* 將圓盤向後倒 */
-            transform: rotateX(60deg); 
-            transform-style: preserve-3d;
             z-index: 20;
         }
 
-        /* 修改：手圖片設定 (上方向下) */
         .pointer-img {
             position: absolute;
-            /* 移除 translateY(-50%)，因為它會干擾 top 屬性 */
             left: 50%;
-            /* 調整 top 值，使手指伸進轉盤中指在上方 */
-            top: -5px; 
-            /* 本地水平翻轉 scaleX(-1)，然後逆時針旋轉 90 度 rotate(-90deg) */
+            /* 🌟 調整這裡：控制手指伸入盤子的深度 (-10px 代表稍微在邊緣外面一點) */
+            top: -10px; 
+            /* 保持置中並旋轉手指朝下 */
             transform: translateX(-50%) rotate(-90deg); 
             width: 160px; 
             height: 100px; 
-            filter: drop-shadow(3px 3px 2px rgba(0,0,0,0.3));
+            /* 加上陰影強化懸浮感 */
+            filter: drop-shadow(8px -8px 5px rgba(0,0,0,0.4));
         }
 
         .controls {
@@ -145,12 +143,10 @@
         let spinVelocity = 0;
         let animationFrameId;
 
-        // 初始繪製轉盤 (只執行一次)
         function drawWheel() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             for (let i = 0; i < numSegments; i++) {
-                // 從正上方 (12點鐘方向) 開始畫
                 const angle = (i * arc) - (Math.PI / 2); 
                 
                 ctx.beginPath();
@@ -199,15 +195,13 @@
                     currentAngle -= Math.PI * 2;
                 }
 
-                // 更新：手指順時針旋轉公轉
-                // 為了配合上方往下指的透視，需要保持 rotateX(60deg) 並且 rotateZ 角度
-                pointerWrapper.style.transform = `rotateX(60deg) rotateZ(${currentAngle}rad)`;
+                // 🌟 修正重點：加上 translateZ(30px) 讓手指懸浮，並單純使用 rotateZ 旋轉
+                pointerWrapper.style.transform = `translateZ(30px) rotateZ(${currentAngle}rad)`;
                 
                 animationFrameId = requestAnimationFrame(animate);
             }
         }
 
-        // 判定中獎邏輯
         function checkResult() {
             let normalizedAngle = currentAngle % (Math.PI * 2);
             let winningSegmentIndex = Math.floor(normalizedAngle / arc);
@@ -244,7 +238,6 @@
             }
         });
 
-        // 初始繪製轉盤
         drawWheel();
     </script>
 </body>
