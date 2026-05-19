@@ -51,17 +51,16 @@
             pointer-events: none; 
         }
 
-        /* 指針圖片設定 */
-        .pointer-img {
-            position: absolute;
-            top: 50%;
-            right: -80px; 
-            /* 本地水平翻轉，讓手指朝向左邊(轉盤中心) */
-            transform: translateY(-50%) scaleX(-1); 
-            width: 160px; 
-            height: 100px; 
-            filter: drop-shadow(-3px 3px 2px rgba(0,0,0,0.3));
-        }
+ /* 指針圖片設定 */
+.pointer-img {
+    position: absolute;
+    top: 50%;
+    right: 30px; /* 🌟 改成正值，數字越大，手指伸進盤子越深 */
+    transform: translateY(-50%) scaleX(-1); 
+    width: 160px; 
+    height: 100px; 
+    filter: drop-shadow(-3px 3px 2px rgba(0,0,0,0.3));
+}
 
         .controls {
             margin-top: 50px;
