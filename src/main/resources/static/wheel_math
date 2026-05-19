@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互動式幸運轉盤 (更新指針+音效+手動停止版)</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #7b7b7b;
+            margin: 0;
+            font-family: sans-serif;
+            overflow: hidden;
+            cursor: pointer; 
+        }
+
+        .wheel-container {
+            position: relative;
+            transform: perspective(800px) rotateX(45deg); 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            border-radius: 50%;
+            background-color: #dcb38a;
+            padding: 10px;
+        }
+
+        canvas {
+            display: block;
+            border-radius: 50%;
+        }
+
+        /* 更新圖片指針設計 */
+        .pointer-img {
+            position: absolute;
+            top: 50%;
+            right: -80px; /* 調整 right 值，使翻轉後的手指剛好指向邊緣 */
+            transform: translateY(-50%) scaleX(-1); /* 垂直居中，並且水平翻轉，使手指指向左 */
+            width: 160px; /* 根據 image_5.png 的比例調整寬度 */
+            height: 100px; /* 根據 image_5.png 的比例調整高度 */
+            z-index: 10;
+            filter: drop-shadow(-3px 3px 2px rgba(0,0,0,0.3));
+        }
+
+        .controls {
+            margin-top: 50px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: translateY(2px);
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="spinSound" src="minnie.mp3" loop preload="auto"></audio>
+    <audio id="stopSound" src="stop.mp3" preload="auto"></audio>
+
+    <div class="wheel-container">
+        <img src="image_5.png" id="pointerImg" class="pointer-img" alt="Pointer" />
+        <canvas id="wheelCanvas" width="500" height="500"></canvas>
+    </div>
+
+    <div class="controls">
+        <button id="spinBtn">點擊開始</button>
+        <div id="result">準備好了嗎？</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spinBtn');
+        const resultDiv = document.getElementById('result');
+        const spinSound = document.getElementById('spinSound');
+        const stopSound = document.getElementById('stopSound');
+
+        const segments = [
+            { text: '沒中', color: '#e74c3c', icon: '❌' },
+            { text: '車鑰匙', color: '#95a5a6', icon: '🔑' },
+            { text: '手錶', color: '#f39c12', icon: '⌚' },
+            { text: '100元', color: '#f1c40f', icon: '💵' },
+            { text: '陀螺', color: '#ecf0f1', icon: '🌀' },
+            { text: '手機', color: '#bdc3c7', icon: '📱' },
+            { text: '小熊', color: '#e67e22', icon: '🧸' },
+            { text: '金條', color: '#f1c40f', icon: '🥇' }
+        ];
+
+        const numSegments = segments.length;
+        const radius = canvas.width / 2;
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const arc = Math.PI * 2 / numSegments;
+
+        let currentAngle = 0;
+        let isSpinning = false;
+        let isStopping = false; 
+        let spinVelocity = 0;
+        let animationFrameId;
+
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < numSegments; i++) {
+                const angle = currentAngle + i * arc;
+                
+                ctx.beginPath();
+                ctx.fillStyle = segments[i].color;
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, angle, angle + arc, false);
+                ctx.lineTo(centerX, centerY);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angle + arc / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = i === 0 ? "#fff" : "#333";
+                ctx.font = "bold 24px sans-serif";
+                
+                ctx.fillText(segments[i].text, radius - 30, 10);
+                ctx.font = "30px sans-serif";
+                ctx.fillText(segments[i].icon, radius - 100, 10);
+                ctx.restore();
+            }
+        }
+
+        function animate() {
+            if (isSpinning) {
+                currentAngle += spinVelocity;
+
+                if (isStopping) {
+                    spinVelocity *= 0.985; 
+                    
+                    if (spinVelocity < 0.002) {
+                        spinVelocity = 0;
+                        isSpinning = false;
+                        isStopping = false;
+                        cancelAnimationFrame(animationFrameId);
+                        checkResult();
+                        return; 
+                    }
+                }
+
+                if (currentAngle >= Math.PI * 2) {
+                    currentAngle -= Math.PI * 2;
+                }
+
+                drawWheel();
+                animationFrameId = requestAnimationFrame(animate);
+            }
+        }
+
+        function checkResult() {
+            let normalizedAngle = (Math.PI * 2 - currentAngle) % (Math.PI * 2);
+            let winningSegmentIndex = Math.floor(normalizedAngle / arc);
+            
+            let winner = segments[winningSegmentIndex];
+            resultDiv.innerText = winner.text === '沒中' ? "完，沒中！" : `恭喜你抽中：${winner.text} ${winner.icon}`;
+            spinBtn.innerText = "再玩一次";
+        }
+
+        spinBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            isStopping = false;
+            spinVelocity = 0.15; 
+            
+            resultDiv.innerText = "旋轉中... (點擊滑鼠左鍵停止)";
+            spinBtn.innerText = "等待停止";
+            
+            // 播放旋轉音樂
+            spinSound.currentTime = 0;
+            spinSound.play().catch(err => console.log("瀏覽器阻擋自動播放:", err));
+            
+            animate();
+        });
+
+        // 監聽全域的滑鼠左鍵點擊事件
+        document.addEventListener('mousedown', (e) => {
+            if (isSpinning && !isStopping && e.button === 0 && e.target !== spinBtn) {
+                isStopping = true;
+                
+                // 暫停旋轉音樂，並播放停止音效
+                spinSound.pause(); 
+                stopSound.currentTime = 0; 
+                stopSound.play().catch(err => console.log("播放停止音效失敗:", err));
+            }
+        });
+
+        drawWheel();
+    </script>
+</body>
+</html>
