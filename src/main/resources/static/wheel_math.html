@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>互動式幸運轉盤 (上方手指往下指)</title>
+    <title>互動式幸運轉盤 (3D懸浮手指版)</title>
     <style>
         body {
             display: flex;
@@ -11,57 +11,78 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-color: #7b7b7b;
+            background-color: #5c5c5c; /* 把背景調暗一點，更能凸顯立體光影 */
             margin: 0;
             font-family: sans-serif;
             overflow: hidden;
             cursor: pointer; 
         }
 
-        .wheel-container {
+        /* 建立 3D 攝影機視角 */
+        .scene {
             position: relative;
-            transform: perspective(800px) rotateX(45deg); 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            border-radius: 50%;
-            background-color: #dcb38a;
-            padding: 10px;
             width: 500px;
             height: 500px;
+            perspective: 1200px; /* 視角深度，數字越小透視感越強烈 */
+            margin-bottom: 50px;
+        }
+
+        /* 轉盤本體 (做出厚度與傾斜) */
+        .wheel-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: #dcb38a;
+            /* 將圓盤向後倒 (rotateX)，產生放在桌面上的感覺 */
+            transform: rotateX(60deg); 
+            /* 利用陰影做出木板的 3D 厚度 (向下延伸 15px) 與落地陰影 */
+            box-shadow: 
+                0 15px 0 #9c7a5a, 
+                0 30px 50px rgba(0,0,0,0.8);
+            /* 讓裡面的元素也能繼承 3D 空間 */
+            transform-style: preserve-3d;
         }
 
         canvas {
             display: block;
             border-radius: 50%;
+            /* 讓 Canvas 服貼在轉盤表面 */
+            width: 100%;
+            height: 100%;
         }
 
-        .pointer-container {
+        /* 手指旋轉容器 (懸浮在空中) */
+        .pointer-wrapper {
             position: absolute;
-            top: 10px; 
-            left: 10px;
-            width: 500px;
-            height: 500px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             border-radius: 50%;
-            z-index: 10;
-            transform-origin: center center; 
+            /* 🌟 核心魔法：一樣向後倒，但用 translateZ 把它往「上」拉抬 50px，變成懸浮狀態 */
+            transform: rotateX(60deg) translateZ(50px);
+            transform-origin: center center;
             pointer-events: none; 
+            z-index: 20;
         }
 
-        /* 🌟 這是修改的重點區塊 (CSS) */
+        /* 指針圖片設定 */
         .pointer-img {
             position: absolute;
-            left: 50%; /* 將左側推到中間 */
-            top: 10px; /* 這裡改成 top。數字越大，手指往下伸進盤子越深 */
-            /* 使用 translateX 將圖片中心對齊，並旋轉 90 度讓手指朝下 */
+            left: 50%;
+            top: -20px; /* 位置微調，讓指尖剛好切到邊緣 */
+            /* 手指原本是橫的，旋轉 90 度讓它朝下指 */
             transform: translateX(-50%) rotate(90deg); 
             width: 160px; 
             height: 100px; 
-            filter: drop-shadow(3px 3px 2px rgba(0,0,0,0.3));
+            /* 🌟 懸浮陰影：因為手浮在空中，所以陰影要偏移比較多，且比較模糊 */
+            filter: drop-shadow(20px -20px 10px rgba(0,0,0,0.6));
         }
 
         .controls {
-            margin-top: 50px;
             text-align: center;
-            z-index: 10;
+            z-index: 30;
         }
 
         button {
@@ -73,13 +94,14 @@
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.4);
             transition: transform 0.1s;
             pointer-events: auto; 
         }
 
         button:active {
-            transform: translateY(2px);
+            transform: translateY(4px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
         }
 
         #result {
@@ -87,7 +109,7 @@
             font-size: 28px;
             font-weight: bold;
             color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
     </style>
 </head>
@@ -96,9 +118,12 @@
     <audio id="spinSound" src="/audio/minnie.mp3" loop preload="auto"></audio>
     <audio id="stopSound" src="/audio/stop.mp3" preload="auto"></audio>
 
-    <div class="wheel-container">
-        <canvas id="wheelCanvas" width="500" height="500"></canvas>
-        <div id="pointerContainer" class="pointer-container">
+    <div class="scene">
+        <div class="wheel-wrapper">
+            <canvas id="wheelCanvas" width="500" height="500"></canvas>
+        </div>
+        
+        <div id="pointerWrapper" class="pointer-wrapper">
             <img src="/img/image_5.png" id="pointerImg" class="pointer-img" alt="Pointer" />
         </div>
     </div>
@@ -115,7 +140,7 @@
         const resultDiv = document.getElementById('result');
         const spinSound = document.getElementById('spinSound');
         const stopSound = document.getElementById('stopSound');
-        const pointerContainer = document.getElementById('pointerContainer');
+        const pointerWrapper = document.getElementById('pointerWrapper');
 
         const segments = [
             { text: '沒中', color: '#e74c3c', icon: '❌' },
@@ -140,12 +165,12 @@
         let spinVelocity = 0;
         let animationFrameId;
 
+        // 繪製轉盤圖形
         function drawWheel() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             for (let i = 0; i < numSegments; i++) {
-                // 🌟 這是修改的重點區塊 (JavaScript)
-                // 減去 Math.PI / 2 (90度)，讓繪圖的起點從「正上方」開始，配合手指的位置
+                // 從正上方 (12點鐘方向) 開始畫
                 const angle = (i * arc) - (Math.PI / 2); 
                 
                 ctx.beginPath();
@@ -194,7 +219,10 @@
                     currentAngle -= Math.PI * 2;
                 }
 
-                pointerContainer.style.transform = `rotate(${currentAngle}rad)`;
+                // 🌟 動畫更新：保持傾斜 (rotateX) 與懸浮高度 (translateZ)，只加上旋轉 (rotateZ)
+                // 注意字串中的順序非常重要！
+                pointerWrapper.style.transform = `rotateX(60deg) translateZ(50px) rotateZ(${currentAngle}rad)`;
+                
                 animationFrameId = requestAnimationFrame(animate);
             }
         }
