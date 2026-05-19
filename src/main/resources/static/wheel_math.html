@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>互動式幸運轉盤 (更新指針+音效+手動停止版)</title>
+    <title>互動式幸運轉盤 (轉盤不動，手指旋轉版)</title>
     <style>
         body {
             display: flex;
@@ -24,7 +24,10 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             border-radius: 50%;
             background-color: #dcb38a;
-            padding: 10px;
+            padding: 10px; /* 內邊距 10px */
+            /* 讓容器有一個明確的長寬基準 */
+            width: 500px;
+            height: 500px;
         }
 
         canvas {
@@ -32,15 +35,31 @@
             border-radius: 50%;
         }
 
-        /* 更新圖片指針設計 */
+        /* 新增：包裹指針的透明旋轉容器 */
+        .pointer-container {
+            position: absolute;
+            /* 抵消 padding，讓容器與 canvas 完全重疊並置中 */
+            top: 10px; 
+            left: 10px;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            z-index: 10;
+            /* 將旋轉中心設定在容器正中央 */
+            transform-origin: center center; 
+            /* 讓滑鼠點擊可以穿透這個透明容器，避免影響全域監聽 */
+            pointer-events: none; 
+        }
+
+        /* 指針圖片設定 */
         .pointer-img {
             position: absolute;
             top: 50%;
-            right: -80px; /* 調整 right 值，使翻轉後的手指剛好指向邊緣 */
-            transform: translateY(-50%) scaleX(1); /* 垂直居中，並且水平翻轉，使手指指向左 */
-            width: 160px; /* 根據 image_5.png 的比例調整寬度 */
-            height: 100px; /* 根據 image_5.png 的比例調整高度 */
-            z-index: 10;
+            right: -80px; 
+            /* 本地水平翻轉，讓手指朝向左邊(轉盤中心) */
+            transform: translateY(-50%) scaleX(-1); 
+            width: 160px; 
+            height: 100px; 
             filter: drop-shadow(-3px 3px 2px rgba(0,0,0,0.3));
         }
 
@@ -61,6 +80,8 @@
             cursor: pointer;
             box-shadow: 0 5px 10px rgba(0,0,0,0.3);
             transition: transform 0.1s;
+            /* 確保按鈕可以被點擊 */
+            pointer-events: auto; 
         }
 
         button:active {
@@ -82,8 +103,11 @@
     <audio id="stopSound" src="/audio/stop.mp3" preload="auto"></audio>
 
     <div class="wheel-container">
-        <img src="/img/image_5.png" id="pointerImg" class="pointer-img" alt="Pointer" />
         <canvas id="wheelCanvas" width="500" height="500"></canvas>
+        
+        <div id="pointerContainer" class="pointer-container">
+            <img src="/img/image_5.png" id="pointerImg" class="pointer-img" alt="Pointer" />
+        </div>
     </div>
 
     <div class="controls">
@@ -98,6 +122,9 @@
         const resultDiv = document.getElementById('result');
         const spinSound = document.getElementById('spinSound');
         const stopSound = document.getElementById('stopSound');
+        
+        // 取得手指旋轉容器
+        const pointerContainer = document.getElementById('pointerContainer');
 
         const segments = [
             { text: '沒中', color: '#e74c3c', icon: '❌' },
@@ -116,17 +143,19 @@
         const centerY = canvas.height / 2;
         const arc = Math.PI * 2 / numSegments;
 
-        let currentAngle = 0;
+        let currentAngle = 0; // 現在代表的是「手指」旋轉的角度
         let isSpinning = false;
         let isStopping = false; 
         let spinVelocity = 0;
         let animationFrameId;
 
+        // 畫轉盤：現在只需要在開場畫一次，不用一直重畫了！
         function drawWheel() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             for (let i = 0; i < numSegments; i++) {
-                const angle = currentAngle + i * arc;
+                // 轉盤固定，所以角度從 0 開始依序繪製
+                const angle = i * arc; 
                 
                 ctx.beginPath();
                 ctx.fillStyle = segments[i].color;
@@ -153,6 +182,7 @@
             }
         }
 
+        // 動畫：只旋轉 CSS 容器
         function animate() {
             if (isSpinning) {
                 currentAngle += spinVelocity;
@@ -174,13 +204,17 @@
                     currentAngle -= Math.PI * 2;
                 }
 
-                drawWheel();
+                // 透過 CSS Transform 旋轉整個手指的容器
+                pointerContainer.style.transform = `rotate(${currentAngle}rad)`;
+
                 animationFrameId = requestAnimationFrame(animate);
             }
         }
 
+        // 判定中獎邏輯
         function checkResult() {
-            let normalizedAngle = (Math.PI * 2 - currentAngle) % (Math.PI * 2);
+            // 因為現在是手指順時針轉，所以角度直接除以每一格的弧度，就能對應到陣列索引
+            let normalizedAngle = currentAngle % (Math.PI * 2);
             let winningSegmentIndex = Math.floor(normalizedAngle / arc);
             
             let winner = segments[winningSegmentIndex];
@@ -199,25 +233,23 @@
             resultDiv.innerText = "旋轉中... (點擊滑鼠左鍵停止)";
             spinBtn.innerText = "等待停止";
             
-            // 播放旋轉音樂
             spinSound.currentTime = 0;
             spinSound.play().catch(err => console.log("瀏覽器阻擋自動播放:", err));
             
             animate();
         });
 
-        // 監聽全域的滑鼠左鍵點擊事件
         document.addEventListener('mousedown', (e) => {
             if (isSpinning && !isStopping && e.button === 0 && e.target !== spinBtn) {
                 isStopping = true;
                 
-                // 暫停旋轉音樂，並播放停止音效
                 spinSound.pause(); 
                 stopSound.currentTime = 0; 
                 stopSound.play().catch(err => console.log("播放停止音效失敗:", err));
             }
         });
 
+        // 初始繪製轉盤 (只執行一次)
         drawWheel();
     </script>
 </body>
