@@ -58,24 +58,22 @@
 		     
 		</div>
 
-            <div>
-                <iframe width="1060" height="815" 
-                src="https://www.youtube.com/embed/KGYntOaFPJM" 
-                frameborder="0" allowfullscreen>
-
-                </iframe>
-    
-            </div>
+            <!-- 第一支影片 -->
+        <div class="yt-hover-container" id="yt-container-1">
+            <iframe id="yt-player-1" width="1060" height="815" 
+            src="https://www.youtube.com/embed/KGYntOaFPJM?enablejsapi=1&mute=1&controls=0&loop=1&playlist=KGYntOaFPJM" 
+            frameborder="0" allowfullscreen>
+            </iframe>
+        </div>
                         
-             <div>
-                               <h1>手機版專案</h1>
-             	<iframe width="1060" height="815" 
-                src="https://www.youtube.com/embed/r3F3eZq_T28" 
+            <div>
+            <h1>手機版專案</h1>
+            <div class="yt-hover-container" id="yt-container-2">
+                <iframe id="yt-player-2" width="1060" height="815" 
+                src="https://www.youtube.com/embed/r3F3eZq_T28?enablejsapi=1&mute=1&controls=0&loop=1&playlist=r3F3eZq_T28" 
                 frameborder="0" allowfullscreen>
+                </iframe>
             
-			 </iframe>
-            
-
         </div>
         
 
@@ -100,7 +98,42 @@
     </footer>
 
 
+<!-- 引入 YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    
+    <script>
+        let player1, player2;
 
+        // 當 YouTube API 載入完成後會自動執行此函數
+        function onYouTubeIframeAPIReady() {
+            // 初始化兩個播放器
+            player1 = new YT.Player('yt-player-1');
+            player2 = new YT.Player('yt-player-2');
+
+            // 設定滑鼠懸停事件
+            setupHoverEvent('yt-container-1', player1);
+            setupHoverEvent('yt-container-2', player2);
+        }
+
+        // 綁定 Hover 播放邏輯的共用函數
+        function setupHoverEvent(containerId, playerInstance) {
+            const container = document.getElementById(containerId);
+            
+            // 滑鼠移入：播放影片
+            container.addEventListener('mouseenter', () => {
+                if (playerInstance && typeof playerInstance.playVideo === 'function') {
+                    playerInstance.playVideo();
+                }
+            });
+
+            // 滑鼠移出：暫停影片
+            container.addEventListener('mouseleave', () => {
+                if (playerInstance && typeof playerInstance.pauseVideo === 'function') {
+                    playerInstance.pauseVideo();
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>
