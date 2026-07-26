@@ -7,12 +7,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的首頁</title>
     <link rel="stylesheet" href="/css/index.css">
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     
-    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+    <!-- ==========================================
+         統一導覽列風格 (與 Spine2D 的毛玻璃風格一致)
+         ========================================== -->
+    <style>
+        /* 確保 body 不會有預設的 margin 影響導覽列貼齊邊緣 */
+        body {
+            margin: 0;
+            padding: 0;
+        }
 
-    
-    
+        /* 導覽列毛玻璃與深色化 */
+        header { 
+            position: fixed !important; 
+            top: 0 !important; 
+            left: 0 !important; 
+            height: 100px !important; 
+            width: 100% !important; 
+            padding: 10px 80px !important; 
+            display: flex !important; 
+            justify-content: space-between !important; 
+            align-items: center !important; 
+            background-color: rgba(18, 18, 18, 0.9) !important; 
+            backdrop-filter: blur(10px) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+            z-index: 9999 !important; 
+            box-sizing: border-box !important;
+        }
+        
+        /* Logo 樣式統一 */
+        .logo { 
+            font-size: 1.8em !important; 
+            color: #fff !important; 
+            user-select: none !important; 
+            font-weight: 700 !important; 
+            letter-spacing: 3px !important; 
+            text-transform: uppercase !important;
+            margin: 0 !important;
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
+        }
+
+        .navigation {
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        /* 連結文字樣式與底線動畫 */
+        .navigation a { 
+            position: relative !important; 
+            font-size: 1em !important; 
+            color: #999 !important; 
+            text-decoration: none !important; 
+            font-weight: 400 !important; 
+            margin-left: 40px !important; 
+            letter-spacing: 1px !important; 
+            transition: color 0.3s !important; 
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
+        }
+
+        .navigation a:hover { 
+            color: #fff !important; 
+        }
+
+        .navigation a::after { 
+            content: '' !important; 
+            position: absolute !important; 
+            left: 0 !important; 
+            bottom: -4px !important; 
+            width: 100% !important; 
+            height: 1px !important; 
+            background: #fff !important; 
+            transform-origin: right !important; 
+            transform: scaleX(0) !important; 
+            transition: transform .4s !important; 
+        }
+
+        .navigation a:hover::after { 
+            transform-origin: left !important; 
+            transform: scaleX(1) !important; 
+        }
+    </style>
+
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
 </head>
 
 <body>
@@ -25,7 +103,6 @@
             <a href="/3dart.html">3D Art</a>
             <a href="/spine2d.html">Spine 2D</a>
          
-            
             <!-- <button class="btnLogin-popup">Login</button> -->
         </nav>
     </header>
@@ -91,8 +168,6 @@
 
         </div>
     </div>
-
-    
 
 </body>
 

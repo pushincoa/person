@@ -5,13 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>關於我 - Lee Wei Chiao</title>
-    <!-- 使用 FontAwesome & Ionicons -->
     <script src="https://kit.fontawesome.com/91734ce5bb.js" crossorigin="anonymous"></script>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 
     <style>
-        /* --- 基礎設定 --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body { 
@@ -21,37 +19,83 @@
             line-height: 1.6;
         }
 
-        /* --- 導覽列 --- */
+        /* --- 統一導覽列樣式 --- */
         header { 
             position: fixed; 
             top: 0; left: 0; 
             width: 100%; 
-            height: 80px; 
-            padding: 0 50px; 
+            height: 100px; /* 統一為 100px 高度 */
+            padding: 10px 80px; /* 統一 padding */
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             background-color: rgba(18, 18, 18, 0.9); 
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255,255,255,0.05);
-            z-index: 100; 
+            z-index: 1000; 
+            box-sizing: border-box;
         }
         
-        .nav-title { font-size: 1.5em; color: #fff; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-        .nav-link { color: #fff; font-size: 1.5em; text-decoration: none; transition: color 0.3s; }
-        .nav-link:hover { color: #4dd0e1; }
+        .logo { 
+            font-size: 1.8em; /* 統一字體大小 */
+            color: #fff; 
+            user-select: none;
+            font-weight: 700; 
+            letter-spacing: 3px; /* 統一字距 */
+            text-transform: uppercase; 
+            margin: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif; /* 統一字型 */
+        }
+
+        .navigation {
+            display: flex;
+            align-items: center;
+        }
+
+        .navigation a { 
+            position: relative; 
+            font-size: 1em; /* 統一導航字體大小 */
+            color: #999; 
+            text-decoration: none; 
+            font-weight: 400; 
+            margin-left: 40px; 
+            letter-spacing: 1px; 
+            transition: color 0.3s; 
+            font-family: 'Helvetica Neue', Arial, sans-serif; /* 統一導航字型 */
+        }
+
+        .navigation a:hover, .navigation a.active { 
+            color: #fff; 
+        }
+
+        .navigation a::after { 
+            content: ''; 
+            position: absolute; 
+            left: 0; 
+            bottom: -4px; 
+            width: 100%; 
+            height: 1px; 
+            background: #fff; 
+            transform-origin: right; 
+            transform: scaleX(0); 
+            transition: transform .4s; 
+        }
+
+        .navigation a:hover::after, .navigation a.active::after { 
+            transform-origin: left; 
+            transform: scaleX(1); 
+        }
 
         /* --- 主內容區容器 --- */
         main {
             max-width: 1000px;
-            margin: 120px auto 80px; /* 留出 header 空間 */
+            margin: 120px auto 80px; 
             padding: 0 20px;
             display: flex;
             flex-direction: column;
             gap: 60px;
         }
 
-        /* --- 區塊共用樣式 --- */
         section {
             background-color: #1A1A1A;
             border-radius: 12px;
@@ -70,7 +114,6 @@
             text-transform: uppercase;
         }
 
-        /* --- 個人資訊區 (Hero Section) --- */
         .personal-info {
             display: flex;
             flex-direction: column;
@@ -115,7 +158,6 @@
         }
         .description p { margin-bottom: 15px; }
 
-        /* --- 專業技能區 (Skills) --- */
         .skills-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -145,7 +187,6 @@
             gap: 10px;
         }
         
-        /* 為每個技能加入 icon (透過 FontAwesome/Ionicons) */
         .skill-name i { color: #4dd0e1; }
         
         .skill-card p {
@@ -154,7 +195,6 @@
             line-height: 1.7;
         }
 
-        /* --- 工作經歷區 (Experience) --- */
         .timeline {
             position: relative;
             padding-left: 30px;
@@ -168,7 +208,6 @@
         
         .experience-item:last-child { margin-bottom: 0; }
 
-        /* 時間軸上的小圓點 */
         .experience-item::before {
             content: '';
             position: absolute;
@@ -202,30 +241,35 @@
             font-size: 15px;
             color: #BBB;
             line-height: 1.7;
+            white-space: pre-line;
         }
 
-        /* RWD 手機版調整 */
         @media (max-width: 768px) {
+            header { height: 80px !important; padding: 10px 20px !important; }
+            .logo { font-size: 1.2em !important; }
             section { padding: 30px 20px; }
             .name { font-size: 32px; }
             .meta-info { flex-direction: column; gap: 5px; }
+            .navigation { display: none; /* 手機版可能需要另外製作漢堡選單，暫時隱藏避免跑版 */ } 
         }
     </style>
 </head>
 <body>
 
     <header>
-        <span class="nav-title">Lee Wei Chiao</span>
-        <a href="/" class="nav-link">
-            <ion-icon name="home-outline"></ion-icon>
-        </a>
+        <h2 class="logo">Wei Chiao Lee</h2>
+        <nav class="navigation">
+            <a href="/">Home</a>
+            <a href="/about.html" class="active">About</a>
+            <a href="/web.html">Java Web</a>
+            <a href="/3dart.html">3D Art</a>
+            <a href="/spine2d.html">Spine 2D</a>
+        </nav>
     </header>
 
     <main>
-        <!-- ================= 個人簡介 ================= -->
         <section class="personal-info">
             <div class="avatar">
-                <!-- 頭像圖檔路徑保留你原本的 -->
                 <img class="avatar-img" src="/img/JohnLee.png" alt="Lee Wei Chiao">
             </div>
             
@@ -241,22 +285,18 @@
             </div>
             
             <div class="description">
-<div class="description">
-    <p>你好，我是李威樵。我具備多年的 2D/3D 美術設計與專案開發經驗，並擁有扎實的程式邏輯能力。擅長將視覺藝術與系統化思維結合，致力於運用技術工具優化開發流程、提升專案品質與跨部門協作效率。</p>
-    
-    <p>憑藉對美術的熱愛，我於大學時期自學 3ds Max 並進入壹傳媒資材中心工作三年。期間參與《動新聞》、《Next Media Animation》及《Tomo Toon》等專案，負責 3D 模型製作、貼圖繪製與角色骨架綁定，累積了高壓且高效的專案執行經驗。</p>
-    
-    <p>隨後加入中佑資訊，我的職能從 3D 模型與算圖調色，逐步擴展至 Spine 2D 動態製作與遊戲設計。為了讓企劃與程式端 (RD) 更精確地理解美術的動態需求，我主動學習 After Effects 進行預覽影片剪輯，顯著降低溝通成本並提升了跨部門的協作效率。</p>
-    
-    <p>這段經歷讓我深刻體會到程式開發解決實務問題的巨大潛力。近期因明確的職涯規劃，我進一步透過職訓局完成了系統化的程式設計訓練，熟練掌握 Java、SQL、Spring Boot、HTML/CSS/JS 以及 Angular 等前後端技術。期許能在未來的團隊中，完美融合「程式的嚴謹邏輯」與「深厚的美術底蘊」，發揮無可取代的跨領域價值。</p>
+                <p>你好，我是李威樵。我具備多年的 2D/3D 美術設計與專案開發經驗，並擁有扎實的程式邏輯能力。擅長將視覺藝術與系統化思維結合，致力於運用技術工具優化開發流程、提升專案品質與跨部門協作效率。</p>
+                
+                <p>憑藉對美術的熱愛，我於大學時期自學 3ds Max 並進入壹傳媒資材中心工作三年。期間參與《動新聞》、《Next Media Animation》及《Tomo Toon》等專案，負責 3D 模型製作、貼圖繪製與角色骨架綁定，累積了高壓且高效的專案執行經驗。</p>
+                
+                <p>隨後加入中佑資訊，我的職能從 3D 模型與算圖調色，逐步擴展至 Spine 2D 動態製作與遊戲設計。為了讓企劃與程式端 (RD) 更精確地理解美術的動態需求，我主動學習 After Effects 進行預覽影片剪輯，顯著降低溝通成本並提升了跨部門的協作效率。</p>
+                
+                <p>這段經歷讓我深刻體會到程式開發解決實務問題的巨大潛力。近期因明確的職涯規劃，我進一步透過職訓局完成了系統化的程式設計訓練，熟練掌握 Java、SQL、Spring Boot、HTML/CSS/JS 以及 Angular 等前後端技術。期許能在未來的團隊中，完美融合「程式的嚴謹邏輯」與「深厚的美術底蘊」，發揮無可取代的跨領域價值。</p>
 
-    <p>在宸和科技任職的三年間，我進一步將視覺藝術與技術工具完美融合。除了負責特效製作與進階 Spine 2D 動效，靈活運用網格變形與換裝系統製作流暢的角色動畫外，我也致力於優化開發流程。應用AE特效粒子效果 優化cocos效能，我主動導入 Kling、Veo 等 AI 影像生成工具，透過精確的結構化提示詞控管動畫無縫循環與角色動態。</p>
-    
-</div>
+                <p>在宸和科技任職的三年間，我進一步將視覺藝術與技術工具完美融合。除了負責特效製作與進階 Spine 2D 動效，靈活運用網格變形與換裝系統製作流暢的角色動畫外，我也致力於優化開發流程。應用 AE 特效粒子效果優化 Cocos 效能，我主動導入 Kling、Veo 等 AI 影像生成工具，透過精確的結構化提示詞控管動畫無縫循環與角色動態。</p>
             </div>
         </section>
 
-        <!-- ================= 專業技能 ================= -->
         <section class="skill-section">
             <h2 class="section-title">專業技能</h2>
             <div class="skills-grid">
@@ -272,8 +312,8 @@
                 </div>
 
                 <div class="skill-card">
-                    <h3 class="skill-name"><i class="fa-solid fa-person-running"></i> AI 應用</h3>
-                    <p>依照企劃書與設定圖綁定骨架，精準調整動態節奏。能夠因應畫面需求，獨立製作特效素材並輸出完整的最終動態畫面。</p>
+                    <h3 class="skill-name"><i class="fa-solid fa-microchip"></i> AI 應用</h3>
+                    <p>熟練運用 AI 工具輔助動畫與素材生成。利用 Layer.ai 進行角色姿勢捕捉與結構控制；運用 Kling 與 Veo 等影像生成技術，結合精確的結構化提示詞控管角色動態與動畫無縫循環。具備 Midjourney 角色三視圖建構與 ComfyUI 流程建置經驗，大幅提升美術開發效率。</p>
                 </div>
                 
                 <div class="skill-card">
@@ -294,23 +334,19 @@
             </div>
         </section>
 
-        <!-- ================= 工作經歷 ================= -->
         <section class="experience-section">
             <h2 class="section-title">工作經歷</h2>
             <div class="timeline">
                  <div class="experience-item">
-                    <h3>高級3D美術動效師</h3>
+                    <h3>高級 3D 美術動效師</h3>
                     <div class="meta-info">
-                        <span class="company"><i class="fa-solid fa-building"></i>宸和科技</span>
+                        <span class="company"><i class="fa-solid fa-building"></i> 宸和科技</span>
                         <span class="duration"><i class="fa-solid fa-calendar-days"></i> 2023年8月 - 2026年8月</span>
                     </div>
-                    <p> 原畫解析與動效製作： 深入分析原畫設定並進行精細拆圖，確保後續動態展演的流暢度與層次感。
-
-                        應用3D軟體製作模型 輔助強化 畫面張力
-
-                        後期特效與合成： 運用 After Effects 進行進階的後期特效處理、畫面合成與色彩統整，嚴格把控最終視覺品質。
-
-                        AI 技術導入： 成功將前沿 AI 生成技術與精準控制流程引入專案工作流，大幅提升開發效率與美術表現張力。</p>
+                    <p>• 原畫解析與動效製作：深入分析原畫設定並進行精細拆圖，確保後續動態展演的流暢度與層次感。
+                    • 3D 模型輔助：應用 3D 軟體製作模型，輔助強化畫面張力。
+                    • 後期特效與合成：運用 After Effects 進行進階的後期特效處理、畫面合成與色彩統整，嚴格把控最終視覺品質。
+                    • AI 技術導入：成功將前沿 AI 生成工具與精準的結構化提示詞（Structural Prompts）引入專案工作流程，大幅提升動畫循環控制與美術表現張力。</p>
                 </div>
 
                 <div class="experience-item">
