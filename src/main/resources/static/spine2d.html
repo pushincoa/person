@@ -19,8 +19,19 @@
         h1 { text-align: center; color: #FFF; font-size: 56px; margin-top: 60px; font-weight: 300; letter-spacing: 6px; text-transform: uppercase; }
         
         .iconContainer { display: flex; justify-content: center; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); margin: 40px auto 40px auto; width: 50%; max-width: 600px; padding: 20px 0; }
-        .iconItems { width: 50px; margin: 10px 25px; filter: grayscale(100%) opacity(0.7); transition: all 0.3s; }
-        .iconItems:hover { filter: grayscale(0%) opacity(1); }
+        .iconItems { 
+    width: 50px; 
+    margin: 10px 25px; 
+    /* 移除灰階與半透明設定，讓它一直保持全亮原色 */
+    transition: all 0.3s ease; 
+    cursor: pointer;
+}
+
+.iconItems:hover { 
+    /* 加上 drop-shadow 產生光暈發光效果，並讓圖示稍微放大上浮 */
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.7)); 
+    transform: translateY(-3px) scale(1.05); 
+}
 
         /* ==================================================
            新增：分類篩選按鈕樣式
