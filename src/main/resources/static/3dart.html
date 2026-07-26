@@ -7,6 +7,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D art</title>
     <link rel="stylesheet" href="/css/3dart.css">
+    
+    <!-- ==========================================
+         統一深色調與字體 (保留原有排版結構)
+         ========================================== -->
+    <style>
+        /* 1. 統一背景與字體 */
+        body { 
+            background-color: #121212 !important; 
+            font-family: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif !important; 
+            color: #E0E0E0 !important; 
+        }
+
+        /* 清除可能存在的亮色背景 */
+        section, .container, .model-d, .containerB, .containerC, .containerD, .containerE, .containerF {
+            background-color: transparent !important;
+        }
+
+        /* 2. 導覽列毛玻璃與深色化 */
+        header, #top { 
+            background-color: rgba(18, 18, 18, 0.9) !important; 
+            backdrop-filter: blur(10px) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+        }
+        
+        .logo { 
+            color: #fff !important; 
+            letter-spacing: 2px !important; 
+            text-transform: uppercase !important;
+        }
+
+        .navigation a { 
+            color: #999 !important; 
+            font-weight: 400 !important;
+            text-decoration: none !important;
+        }
+
+        .navigation a:hover { 
+            color: #fff !important; 
+        }
+
+        /* 3. 標題與內文顏色統一 */
+        h1, h2 { 
+            color: #FFF !important; 
+            font-weight: 300 !important; 
+            letter-spacing: 2px !important; 
+        }
+        
+        .iconContainer span {
+            color: #BBB !important;
+        }
+
+        /* 4. 技能區塊線條調整 */
+        .iconContainer { 
+            border-top: 1px solid rgba(255,255,255,0.1) !important; 
+            border-bottom: 1px solid rgba(255,255,255,0.1) !important; 
+        }
+
+        /* 5. 回到頂部按鈕優化 */
+        .homeback {
+            background-color: rgba(77, 208, 225, 0.1) !important;
+            border: 1px solid #4dd0e1 !important;
+            border-radius: 50% !important; /* 確保是圓的 */
+            transition: all 0.3s !important;
+        }
+        .homeback:hover {
+            background-color: #4dd0e1 !important;
+        }
+        .iconx { color: #fff !important; }
+    </style>
+
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
