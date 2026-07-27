@@ -162,49 +162,56 @@ span{
 
 }
 
+/* ==========================================
+   調整 .items 和 .items1，實現滑鼠懸停發光效果
+   ========================================== */
 .items{
-    /* outline: 3px solid blue; */
     width: 200px;
     height: 200px;
     margin: 50px 40px;
-    /* background: linear-gradient(0deg,rgb(135, 134, 134),rgb(210, 209, 209)); */
-    /* background-color: #e3e1d8; */
     background: url(/img/divbox.png);
     background-size:cover;
     border-radius: 10%;
+    /* 預設的陰影 */
     box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2); 
     border: 5px solid rgb(87, 87, 87);
     display: flex;
-    /* border-top: 70px solid rgba(90, 89, 89, .2); */
-    /* flex-shrink: 1; */
     flex-wrap:wrap;
     justify-content: center;
     align-items: center;
+    /* 加上 transition 讓發光變化更平滑 */
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
 .items1{
-    /* outline: 3px solid blue; */
     width: 200px;
     height: 200px;
     margin: 50px 10px;
-    /* background: linear-gradient(0deg,rgb(135, 134, 134),rgb(210, 209, 209)); */
-    /* background-color: #e3e1d8; */
     background: url(/img/final.png);
     background-position: center center;
     background-size:cover;
     border-radius: 10%;
+    /* 預設的陰影 */
     box-shadow: 0 10px 10px rgba(0, 0, 0, 0.2); 
     border: 5px solid rgb(87, 87, 87);
     display: flex;
-    /* border-top: 70px solid rgba(90, 89, 89, .2); */
-    /* flex-shrink: 1; */
     position: relative;
     flex-wrap:wrap;
     justify-content: center;
     align-items: center;
+    /* 加上 transition 讓發光變化更平滑 */
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-
+/* 滑鼠移上去時的發光效果 */
+.items:hover, .items1:hover {
+    border-color: #fff; /* 邊框變白 */
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), /* 內圈白光 */
+                0 0 40px rgba(255, 255, 255, 0.5); /* 外圈白光 */
+    transform: translateY(-5px); /* 稍微往上浮起 */
+}
 
 
 .imgs1 {
