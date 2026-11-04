@@ -7,6 +7,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D art</title>
     <link rel="stylesheet" href="/css/3dart.css">
+    
+    <!-- ==========================================
+         統一深色調與字體 (保留原有排版結構)
+         ========================================== -->
+    <style>
+        /* 1. 統一背景與字體 */
+        body { 
+            margin: 0;
+            padding: 0;
+            background-color: #121212 !important; 
+            font-family: 'Helvetica Neue', 'Segoe UI', Arial, sans-serif !important; 
+            color: #E0E0E0 !important; 
+        }
+
+        /* 清除可能存在的亮色背景 */
+        section, .container, .model-d, .containerB, .containerC, .containerD, .containerE, .containerF {
+            background-color: transparent !important;
+        }
+
+        /* 2. 導覽列毛玻璃與深色化 */
+        header, #top { 
+            position: fixed !important; 
+            top: 0 !important; 
+            left: 0 !important; 
+            height: 100px !important; 
+            width: 100% !important; 
+            padding: 10px 80px !important; 
+            display: flex !important; 
+            justify-content: space-between !important; 
+            align-items: center !important; 
+            background-color: rgba(18, 18, 18, 0.9) !important; 
+            backdrop-filter: blur(10px) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+            z-index: 9999 !important; 
+            box-sizing: border-box !important;
+        }
+        
+        .logo { 
+            font-size: 1.8em !important; 
+            color: #fff !important; 
+            user-select: none !important; 
+            font-weight: 700 !important; 
+            letter-spacing: 3px !important; 
+            text-transform: uppercase !important;
+            margin: 0 !important;
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
+        }
+
+        .navigation {
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .navigation a { 
+            position: relative !important; 
+            font-size: 1em !important; 
+            color: #999 !important; 
+            text-decoration: none !important; 
+            font-weight: 400 !important; 
+            margin-left: 40px !important; 
+            letter-spacing: 1px !important; 
+            transition: color 0.3s !important; 
+            font-family: 'Helvetica Neue', Arial, sans-serif !important;
+        }
+
+        .navigation a:hover, .navigation a.active { 
+            color: #fff !important; 
+        }
+
+        .navigation a::after { 
+            content: '' !important; 
+            position: absolute !important; 
+            left: 0 !important; 
+            bottom: -4px !important; 
+            width: 100% !important; 
+            height: 1px !important; 
+            background: #fff !important; 
+            transform-origin: right !important; 
+            transform: scaleX(0) !important; 
+            transition: transform .4s !important; 
+        }
+
+        .navigation a:hover::after, .navigation a.active::after { 
+            transform-origin: left !important; 
+            transform: scaleX(1) !important; 
+        }
+
+        /* 避免 header 遮擋上方內容 */
+        section {
+            padding-top: 120px !important;
+        }
+
+        /* 3. 標題與內文顏色統一 */
+        h1, h2 { 
+            color: #FFF !important; 
+            font-weight: 300 !important; 
+            letter-spacing: 2px !important; 
+        }
+        
+        .iconContainer span {
+            color: #BBB !important;
+        }
+
+        /* 4. 技能區塊線條調整 */
+        .iconContainer { 
+            border-top: 1px solid rgba(255,255,255,0.1) !important; 
+            border-bottom: 1px solid rgba(255,255,255,0.1) !important; 
+        }
+
+        /* 5. 回到頂部按鈕優化 */
+        .homeback {
+            background-color: rgba(77, 208, 225, 0.1) !important;
+            border: 1px solid #4dd0e1 !important;
+            border-radius: 50% !important; 
+            transition: all 0.3s !important;
+            z-index: 9000 !important;
+        }
+        .homeback:hover {
+            background-color: #4dd0e1 !important;
+        }
+        .iconx { color: #fff !important; }
+    </style>
+
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -19,7 +142,7 @@
             <a href="/">Home</a>
             <a href="/about.html">About</a>
             <a href="/web.html">Java Web</a>
-            <a href="#">3D Art</a>
+            <a href="#" class="active">3D Art</a>
             <a href="/spine2d.html">Spine 2D</a>
             
 
@@ -56,7 +179,7 @@
                 <img id="picA" class="imgs1" src="/img/d00.png" alt="">
 
             </div>
-            <div class="items1">
+            <div class="items">
                 <img id="picB" class="imgs2 " src="/img/b1.png" alt="">
             </div>
             <div class="items">
@@ -93,7 +216,7 @@
              <!-- 啤酒嘉年華 -->
             <div id="modelB" class="containerB">
                 <img class="bcomp" src="/img/bcomp.png" alt="">
-                <img class="b12" src="/img/b12.png" alt="">
+                <img class="b12" src="/img/b12.jpg" alt="">
             </div>
             <div id="modelC" class="containerC">
                 <img class="k01" src="/img/k01.png" alt="">
@@ -136,8 +259,8 @@
                 <img class="acter" src="/img/character05.png" alt="">
                 <img class="acter" src="/img/character06.png" alt="">
                 <img class="acter" src="/img/character07.png" alt="">
-                <img class="acter" src="/img/character08.png" alt="">
-                <img class="acter" src="/img/character09.png" alt="">
+                <img class="acter" src="/img/character08.jfif" alt="">
+                <img class="acter" src="/img/character09.jfif" alt="">
             </div>
 
         </div>

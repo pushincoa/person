@@ -133,3 +133,18 @@ footer{
     width: 100%;
     background-color: aqua;
 }
+
+/* 新增 YouTube 懸停容器樣式 */
+.yt-hover-container {
+    position: relative;
+    width: 1060px;
+    height: 815px;
+    margin: 0 auto 30px auto; /* 置中並增加底部間距 */
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* 關閉 iframe 自身的滑鼠互動，讓外層 div 來接收 hover 事件 */
+.yt-hover-container iframe {
+    pointer-events: none; 
+}

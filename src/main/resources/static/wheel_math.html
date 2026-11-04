@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>互動式幸運轉盤 (全螢幕響應式 RWD 版)</title>
+    <style>
+        :root {
+            /* 🌟 核心控制：轉盤最大 500px，但在小螢幕會自動縮放適應寬度 */
+            --wheel-size: min(90vw, 500px); 
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* 避免有些手機瀏覽器底下有導覽列遮擋，使用 dvh 如果支援的話更好，這裡用 vh 搭配 min-height */
+            min-height: 100vh;
+            background-color: #7b7b7b;
+            margin: 0;
+            font-family: sans-serif;
+            overflow: hidden;
+            cursor: pointer; 
+        }
+
+        .wheel-container {
+            position: relative;
+            /* 讓透視感也跟著螢幕大小變化 */
+            transform: perspective(150vw) rotateX(45deg); 
+            transform-style: preserve-3d; 
+            /* 陰影也改用比例計算，維持立體厚度 */
+            box-shadow: 0 calc(var(--wheel-size) * 0.04) calc(var(--wheel-size) * 0.1) rgba(0,0,0,0.5);
+            border-radius: 50%;
+            background-color: #dcb38a;
+            /* 將寬高綁定我們設定的變數 */
+            width: var(--wheel-size);
+            height: var(--wheel-size);
+            /* padding 也改成比例 */
+            padding: 2%; 
+            box-sizing: border-box;
+        }
+
+        /* Canvas 本身的內部解析度依然是 500x500，但外觀會被這裡的 100% 壓縮，這會讓畫質非常精細 (類似 Retina 螢幕效果) */
+        canvas {
+            display: block;
+            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+        }
+
+        .pointer-wrapper {
+            position: absolute;
+            top: 0; 
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            z-index: 20;
+            /* 使用 var(--angle) 接收來自 JS 的旋轉角度，並保持等比例的 3D 懸浮高度 */
+            transform: translateZ(calc(var(--wheel-size) * 0.06)) rotateZ(var(--angle, 0rad));
+        }
+
+        .pointer-img {
+            position: absolute;
+            left: 50%;
+            /* 將 px 全部換成 % 比例，確保縮放時完美對位 */
+            top: -2%; 
+            width: 32%; /* 160px 約為 500px 的 32% */
+            height: auto; 
+            /* translateY(-35%) 裡的百分比是相對於圖片自身高度，所以縮放也不會歪 */
+            transform: translateX(-50%) rotate(-90deg) translateY(-35%); 
+            filter: drop-shadow(8px -8px 5px rgba(0,0,0,0.4));
+        }
+
+        .controls {
+            /* 距離也改成動態的 */
+            margin-top: calc(var(--wheel-size) * 0.1);
+            text-align: center;
+            z-index: 30;
+        }
+
+        button {
+            /* clamp(最小值, 推薦值, 最大值)：讓按鈕跟著螢幕平滑縮放 */
+            padding: clamp(10px, 3vw, 15px) clamp(20px, 6vw, 40px);
+            font-size: clamp(18px, 5vw, 24px);
+            font-weight: bold;
+            color: white;
+            background-color: #4CAF50;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
+            pointer-events: auto; 
+        }
+
+        button:active {
+            transform: translateY(2px);
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: clamp(20px, 6vw, 28px);
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="spinSound" src="/audio/minnie.mp3" loop preload="auto"></audio>
+    <audio id="stopSound" src="/audio/stop.mp3" preload="auto"></audio>
+
+    <div class="wheel-container">
+        <canvas id="wheelCanvas" width="500" height="500"></canvas>
+        
+        <div id="pointerWrapper" class="pointer-wrapper">
+            <img src="/img/image_5.png" id="pointerImg" class="pointer-img" alt="Pointer" />
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="spinBtn">點擊開始</button>
+        <div id="result">準備好了嗎？</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spinBtn');
+        const resultDiv = document.getElementById('result');
+        const spinSound = document.getElementById('spinSound');
+        const stopSound = document.getElementById('stopSound');
+        const pointerWrapper = document.getElementById('pointerWrapper');
+
+        const segments = [
+            { text: '沒中', color: '#e74c3c', icon: '❌' },
+            { text: '車鑰匙', color: '#95a5a6', icon: '🔑' },
+            { text: '手錶', color: '#f39c12', icon: '⌚' },
+            { text: '100元', color: '#f1c40f', icon: '💵' },
+            { text: '陀螺', color: '#ecf0f1', icon: '🌀' },
+            { text: '手機', color: '#bdc3c7', icon: '📱' },
+            { text: '小熊', color: '#e67e22', icon: '🧸' },
+            { text: '金條', color: '#f1c40f', icon: '🥇' }
+        ];
+
+        const numSegments = segments.length;
+        const radius = canvas.width / 2;
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const arc = Math.PI * 2 / numSegments;
+
+        let currentAngle = 0; 
+        let isSpinning = false;
+        let isStopping = false; 
+        let spinVelocity = 0;
+        let animationFrameId;
+
+        function drawWheel() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < numSegments; i++) {
+                const angle = (i * arc) - (Math.PI / 2); 
+                
+                ctx.beginPath();
+                ctx.fillStyle = segments[i].color;
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, angle, angle + arc, false);
+                ctx.lineTo(centerX, centerY);
+                ctx.fill();
+                
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angle + arc / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = i === 0 ? "#fff" : "#333";
+                ctx.font = "bold 24px sans-serif";
+                
+                ctx.fillText(segments[i].text, radius - 30, 10);
+                ctx.font = "30px sans-serif";
+                ctx.fillText(segments[i].icon, radius - 100, 10);
+                ctx.restore();
+            }
+        }
+
+        function animate() {
+            if (isSpinning) {
+                currentAngle += spinVelocity;
+
+                if (isStopping) {
+                    spinVelocity *= 0.985; 
+                    
+                    if (spinVelocity < 0.002) {
+                        spinVelocity = 0;
+                        isSpinning = false;
+                        isStopping = false;
+                        cancelAnimationFrame(animationFrameId);
+                        checkResult();
+                        return; 
+                    }
+                }
+
+                if (currentAngle >= Math.PI * 2) {
+                    currentAngle -= Math.PI * 2;
+                }
+
+                // 🌟 優化：JS 現在只負責傳遞角度給 CSS 變數，不需要去管 translateZ 的高度
+                pointerWrapper.style.setProperty('--angle', `${currentAngle}rad`);
+                
+                animationFrameId = requestAnimationFrame(animate);
+            }
+        }
+
+        function checkResult() {
+            let normalizedAngle = currentAngle % (Math.PI * 2);
+            let winningSegmentIndex = Math.floor(normalizedAngle / arc);
+            
+            let winner = segments[winningSegmentIndex];
+            resultDiv.innerText = winner.text === '沒中' ? "完，沒中！" : `恭喜你抽中：${winner.text} ${winner.icon}`;
+            spinBtn.innerText = "再玩一次";
+        }
+
+        spinBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            isStopping = false;
+            spinVelocity = 0.15; 
+            
+            resultDiv.innerText = "旋轉中... (點擊滑鼠左鍵停止)";
+            spinBtn.innerText = "等待停止";
+            
+            spinSound.currentTime = 0;
+            spinSound.play().catch(err => console.log("瀏覽器阻擋自動播放:", err));
+            
+            animate();
+        });
+
+        document.addEventListener('mousedown', (e) => {
+            if (isSpinning && !isStopping && e.button === 0 && e.target !== spinBtn) {
+                isStopping = true;
+                
+                spinSound.pause(); 
+                stopSound.currentTime = 0; 
+                stopSound.play().catch(err => console.log("播放停止音效失敗:", err));
+            }
+        });
+
+        drawWheel();
+    </script>
+</body>
+</html>
